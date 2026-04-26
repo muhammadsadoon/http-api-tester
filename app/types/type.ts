@@ -20,6 +20,7 @@ interface TabData {
     headers: { key: string; value: string; checked: boolean }[];
     response: any;
     jsonError: string | null;
+    loading: boolean;
 }
 
 interface TabContextType {
@@ -45,10 +46,8 @@ interface TabScreenProps {
     updateURLString : (url: string) => void;
     onsubmit: (e: handleSendReqType) => void;
     loading?: boolean;
-    headers?: {
-        [key:string]: string | boolean | number;
-    }
+    headers?: { key: string; value: string; checked: boolean }[];
     response: any;
     setMethod: (method: DefualtMethods) => void;
-    setUrl: (url: string) => void;
+    onCancel: () => void;
 }

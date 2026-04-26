@@ -1,43 +1,47 @@
 "use client";
 
 import { Group, Input, Paper, Button, Select, Text, Box, Tabs, Textarea, ActionIcon, Checkbox } from "@mantine/core";
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, useMemo } from "react";
 import { useTabContext } from "../../context/tab-context";
 
-export default function TabScreen({ tabId, method, url, updateURLString, onsubmit, loading, response, setMethod }: TabScreenProps) {
+export default function TabScreen({ tabId, method, url, updateURLString, onsubmit, loading, headers, response, setMethod, onCancel }: TabScreenProps) {
     const { updateTab } = useTabContext();
-    const [header, setHeader] = useState<{ [key: string]: string }>({ "content": "applicarion" })
-    const [headerMap, setHeaderMap] = useState<{ key: string; value: string; checked: boolean }[]>([{ key: "", value: "", checked: true }]);
+    const [headerMap, setHeaderMap] = useState<{ key: string; value: string; checked: boolean }[]>(headers && headers.length > 0 ? headers : [{ key: "", value: "", checked: true }]);
     const [body, setBody] = useState<string>("");
     const [jsonError, setJsonError] = useState<string | null>(null);
 
-    const syncHeaderObject = (data: { key: string; value: string; checked: boolean }[]) => {
+    // Derive header object for request submission
+    const header = useMemo(() => {
         const newHeader: { [key: string]: string } = {};
-        data.forEach(({ key, value, checked }) => {
+        headerMap.forEach(({ key, value, checked }) => {
             if (key.trim() && checked) {
                 newHeader[key] = value;
             }
         });
-        setHeader(newHeader);
+        return newHeader;
+    }, [headerMap]);
+
+    // Sync headers to context whenever they change
+    const syncToContext = (updated: { key: string; value: string; checked: boolean }[]) => {
+        setHeaderMap(updated);
+        updateTab(tabId, { headers: updated });
     };
 
     const updateHeaderMap = (index: number, field: "key" | "value" | "checked", newValue: string | boolean) => {
         const updated = headerMap.map((item, i) =>
             i === index ? { ...item, [field]: newValue } : item
         );
-        setHeaderMap(updated);
-        syncHeaderObject(updated);
+        syncToContext(updated);
     };
 
     const addHeaderField = () => {
-        setHeaderMap([...headerMap, { key: "", value: "", checked: true }]);
+        syncToContext([...headerMap, { key: "", value: "", checked: true }]);
     };
 
     const removeHeaderField = (index: number) => {
         if (headerMap.length <= 1) return;
         const updated = headerMap.filter((_, i) => i !== index);
-        setHeaderMap(updated);
-        syncHeaderObject(updated);
+        syncToContext(updated);
     };
 
     const validateJson = (text: string) => {
@@ -194,15 +198,36 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                             </Tabs.Panel>
                         </Tabs>
                     </Box>
-                    <Box w={"49%"} h={400} my={10} bdrs={10} bd={"1px solid #dadada"} p={10}>
+                    <Box w={"49%"} h={400} my={10} bdrs={10} bd={"1px solid #dadada"} p={10} style={{ position: 'relative' }}>
                         <Text>Preview</Text>
-                        <Paper bg={"#f2f2f2"} h={"90%"} w={"100%"} p={10} display={"flex"} className="items-center justify-center">
+                        <Paper bg={"#f2f2f2"} h={"90%"} w={"100%"} p={10} display={"flex"} className="items-center justify-center" style={{ position: 'relative' }}>
                             {response ? (
                                 <pre style={{ width: '100%', height: '100%', overflow: 'auto', fontSize: 12 }}>
                                     {JSON.stringify(response, null, 2)}
                                 </pre>
                             ) : (
                                 <Text>Text not found</Text>
+                            )}
+                            {loading && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: 'rgba(255,255,255,0.85)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '1rem',
+                                        zIndex: 10,
+                                        borderRadius: 4,
+                                    }}
+                                >
+                                    <Text fw="bold" size="lg" c="blue">Loading...</Text>
+                                    <Button color="red" variant="filled" onClick={onCancel} size="sm">
+                                        Cancel Request
+                                    </Button>
+                                </div>
                             )}
                         </Paper>
                     </Box>

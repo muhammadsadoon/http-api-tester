@@ -1,11 +1,8 @@
-# Tab Context Implementation Plan
+# Fix React Children Re-render Issue - TODO
 
-## Steps:
-1. [x] Update `app/types/type.ts` — add `TabData` interface and context types
-2. [x] Create `app/context/tab-context.tsx` — React Context with TabProvider
-3. [x] Update `app/services/provides.tsx` — consume TabContext, remove local tab state
-4. [x] Update `app/components/UI/tab-screen.tsx` — consume TabContext for active tab data
-5. [x] Update `app/page.tsx` — wrap with TabProvider
-6. [x] Test the implementation — build passed successfully
-
+- [x] 1. Fix unstable `key` props in `app/services/provides.tsx` (remove Math.random)
+- [x] 2. Wrap all handlers in `useCallback` with stable dependencies
+- [x] 3. Fix `handleSendURL` logic (remove `if(body)`, fix `res.` syntax)
+- [x] 4. Remove unused `setUrl` prop from `TabScreen` and `TabScreenProps`
+- [x] 5. Verify by running dev server
 

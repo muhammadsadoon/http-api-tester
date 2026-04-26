@@ -15,6 +15,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
       headers: [{ key: "", value: "", checked: true }],
       response: null,
       jsonError: null,
+      loading: false,
     },
   ]);
   const [activeTab, setActiveTabState] = useState<string>("tab1");
@@ -30,6 +31,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
       headers: [{ key: "", value: "", checked: true }],
       response: null,
       jsonError: null,
+      loading: false,
     };
     setTabs((prev) => [...prev, newTab]);
     setActiveTabState(newId);

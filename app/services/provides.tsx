@@ -2,7 +2,7 @@
 
 import { AppShell, Burger, Tabs, Menu } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import TabScreen from '../components/UI/tab-screen';
 import axios from "axios";
 import { useTabContext } from '../context/tab-context';
@@ -17,48 +17,61 @@ export default function AppShellProvider() {
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const activeTabData = tabs.find(t => t.id === activeTab);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Tab close handler
-  const handleCloseTab = (tabValue: string) => {
+  const handleCloseTab = useCallback((tabValue: string) => {
     closeTab(tabValue);
-  };
+  }, [closeTab]);
 
-  const handleAddTab = (method: DefualtMethods) => {
+  const handleAddTab = useCallback((method: DefualtMethods) => {
     addTab(method);
-  };
+  }, [addTab]);
 
-  const handleSendURL = async ({headers,method,url,body}:handleSendReqType) =>{
-    try{
-      if(body){
-        const res = await axios({
-          headers,
-          method,
-          url,
-          data: JSON.stringify(body)
-        })
+  const handleSendURL = useCallback(async ({ headers, method, url, body }: handleSendReqType) => {
+    // Cancel any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-        if (activeTabData) {
-          updateTab(activeTabData.id, { response: res });
-        }
+    updateTab(activeTab, { loading: true, response: null });
+    try {
+      console.log(body)
+      const res = await axios({
+        headers,
+        method,
+        url,
+        data: JSON.stringify(body),
+        signal: controller.signal
+      });
+      updateTab(activeTab, { response: res.data, loading: false });
+    } catch (err: any) {
+      if (axios.isCancel(err)) {
+        updateTab(activeTab, { response: "Request cancelled", loading: false });
+      } else {
+        updateTab(activeTab, { response: err.response?.data ?? err.message, loading: false });
       }
-    }catch(err){
-      if (activeTabData) {
-        updateTab(activeTabData.id, { response: err });
-      }
+    } finally {
+      abortControllerRef.current = null;
     }
-  }
+  }, [activeTab, updateTab]);
 
-  const handleUpdateURL = (url: string) => {
-    if (activeTabData) {
-      updateTab(activeTabData.id, { url });
+  const handleCancelRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
-  };
+  }, []);
 
-  const handleUpdateMethod = (method: DefualtMethods) => {
-    if (activeTabData) {
-      updateTab(activeTabData.id, { method, label: method });
-    }
-  };
+  const handleUpdateURL = useCallback((url: string) => {
+    updateTab(activeTab, { url });
+  }, [activeTab, updateTab]);
+
+  const handleUpdateMethod = useCallback((method: DefualtMethods) => {
+    updateTab(activeTab, { method, label: method });
+  }, [activeTab, updateTab]);
 
   useEffect(() => {
     checkMobile();
@@ -193,7 +206,7 @@ export default function AppShellProvider() {
                       </Menu.Target>
                       <Menu.Dropdown>
                         {(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as DefualtMethods[]).map((method) => (
-                          <Menu.Item key={method + (Math.random() * 10000).toString()} onClick={() => handleAddTab(method)}>
+                          <Menu.Item key={method} onClick={() => handleAddTab(method)}>
                             {method}
                           </Menu.Item>
                         ))}
@@ -324,14 +337,12 @@ export default function AppShellProvider() {
               method={activeTabData.method}
               setMethod={handleUpdateMethod}
               url={activeTabData.url}
-              setUrl={handleUpdateURL}
               key={activeTabData.id}
               onsubmit={handleSendURL}
-              loading={false}
-              headers={{
-                authentication: "bearer 12312312kdmflakdfdfsdf"
-              }}
+              loading={activeTabData.loading}
+              headers={activeTabData.headers}
               response={activeTabData.response}
+              onCancel={handleCancelRequest}
             />
           )}
         </AppShell.Main>
