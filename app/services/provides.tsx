@@ -43,7 +43,7 @@ export default function AppShellProvider() {
         headers,
         method,
         url,
-        data: JSON.stringify(body),
+        data: body,
         signal: controller.signal
       });
       updateTab(activeTab, { response: res.data, loading: false });
