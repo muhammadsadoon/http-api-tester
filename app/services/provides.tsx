@@ -12,12 +12,19 @@ import {
   Info,
   Database,
   TestTube2,
-  ExternalLink
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 import TabScreen from '../components/UI/tab-screen';
 import axios from "axios";
 import { useTabContext } from '../context/tab-context';
 import { DefualtMethods, handleSendReqType } from '../types/type';
+import CollectionsView from '../components/Views/Collections';
+import HistoryView from '../components/Views/History';
+import EnvironmentView from '../components/Views/Environment';
+import SettingsView from '../components/Views/Settings';
+import AboutView from '../components/Views/About';
+import HelpView from '../components/Views/Help';
 
 export default function AppShellProvider() {
   const { tabs, activeTab, addTab, closeTab, setActiveTab, updateTab } = useTabContext();
@@ -29,6 +36,8 @@ export default function AppShellProvider() {
   const checkMobile = () => setIsMobile(window.innerWidth < 640);
   const [opened, { toggle }] = useDisclosure();
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<"tester" | "collections" | "history" | "environment" | "settings" | "about" | "help">("tester");
+  const [mounted, setMounted] = useState(false);
 
   const activeTabData = tabs.find(t => t.id === activeTab);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -100,6 +109,7 @@ export default function AppShellProvider() {
   }, [activeTab, updateTab]);
 
   useEffect(() => {
+    setMounted(true);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -256,45 +266,62 @@ export default function AppShellProvider() {
                   radius="md"
                   aria-label="Toggle color scheme"
                 >
-                  {dark ? <Sun size={20} /> : <Moon size={20} />}
+                  {mounted && (dark ? <Sun size={20} /> : <Moon size={20} />)}
                 </ActionIcon>
               </Tooltip>
             )}
           </div>
         </AppShell.Header>
-
         <AppShell.Navbar p="xs">
           <AppShell.Section grow>
             <Stack gap={4}>
               <NavLink
                 label="API Tester"
                 leftSection={<TestTube2 size={18} />}
-                active
+                active={activeView === "tester"}
+                onClick={() => setActiveView("tester")}
                 variant="filled"
               />
               <NavLink
                 label="Collections"
                 leftSection={<Layers size={18} />}
+                active={activeView === "collections"}
+                onClick={() => setActiveView("collections")}
                 description="Organize your requests"
               />
               <NavLink
                 label="History"
                 leftSection={<History size={18} />}
+                active={activeView === "history"}
+                onClick={() => setActiveView("history")}
               />
               <NavLink
                 label="Environment"
                 leftSection={<Database size={18} />}
+                active={activeView === "environment"}
+                onClick={() => setActiveView("environment")}
               />
-
+              
               <Divider my="sm" label="System" labelPosition="center" />
-
+              
               <NavLink
                 label="Settings"
                 leftSection={<Settings size={18} />}
+                active={activeView === "settings"}
+                onClick={() => setActiveView("settings")}
+              />
+              <NavLink
+                label="Help & Docs"
+                leftSection={<BookOpen size={18} />}
+                component="a"
+                href="/help"
+                target="_blank"
               />
               <NavLink
                 label="About"
                 leftSection={<Info size={18} />}
+                active={activeView === "about"}
+                onClick={() => setActiveView("about")}
               />
             </Stack>
           </AppShell.Section>
@@ -312,10 +339,30 @@ export default function AppShellProvider() {
 
           {isMobile && (
             <AppShell.Section mt="md">
+              <Divider my="sm" label="Views" labelPosition="center" />
+              <NavLink
+                label="API Tester"
+                leftSection={<TestTube2 size={18} />}
+                active={activeView === "tester"}
+                onClick={() => { setActiveView("tester"); toggle(); }}
+              />
+              <NavLink
+                label="Collections"
+                leftSection={<Layers size={18} />}
+                active={activeView === "collections"}
+                onClick={() => { setActiveView("collections"); toggle(); }}
+              />
+              <NavLink
+                label="History"
+                leftSection={<History size={18} />}
+                active={activeView === "history"}
+                onClick={() => { setActiveView("history"); toggle(); }}
+              />
+              
               <Divider my="sm" label="Theme" labelPosition="center" />
               <NavLink
                 label={dark ? "Light Mode" : "Dark Mode"}
-                leftSection={dark ? <Sun size={18} /> : <Moon size={18} />}
+                leftSection={mounted && (dark ? <Sun size={18} /> : <Moon size={18} />)}
                 onClick={() => toggleColorScheme()}
               />
             </AppShell.Section>
@@ -423,7 +470,7 @@ export default function AppShellProvider() {
         </AppShell.Navbar>
 
         <AppShell.Main>
-          {activeTabData && (
+          {activeView === "tester" && activeTabData && (
             <TabScreen
               tabId={activeTabData.id}
               updateURLString={handleUpdateURL}
@@ -442,6 +489,12 @@ export default function AppShellProvider() {
               onCancel={handleCancelRequest}
             />
           )}
+          {activeView === "collections" && <CollectionsView />}
+          {activeView === "history" && <HistoryView />}
+          {activeView === "environment" && <EnvironmentView />}
+          {activeView === "settings" && <SettingsView />}
+          {activeView === "help" && <HelpView />}
+          {activeView === "about" && <AboutView />}
         </AppShell.Main>
       </AppShell>
 
