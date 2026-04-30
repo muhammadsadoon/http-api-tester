@@ -1,14 +1,16 @@
 "use client";
 
-import { Group, Input, Paper, Button, Select, Text, Box, Tabs, Textarea, ActionIcon, Checkbox } from "@mantine/core";
+import { Group, Input, Paper, Button, Select, Text, Box, Tabs, Textarea, ActionIcon, Checkbox, Badge } from "@mantine/core";
 import { useState, type ChangeEvent, useMemo } from "react";
 import { useTabContext } from "../../context/tab-context";
+import { TabScreenProps, DefualtMethods, handleSendReqType } from "../../types/type";
 
-export default function TabScreen({ tabId, method, url, updateURLString, onsubmit, loading, headers, response, setMethod, onCancel }: TabScreenProps) {
+export default function TabScreen({ tabId, method, url, updateURLString, onsubmit, loading, headers, body: initialBody, response, status, statusText, contentType, setMethod, onCancel }: TabScreenProps) {
     const { updateTab } = useTabContext();
     const [headerMap, setHeaderMap] = useState<{ key: string; value: string; checked: boolean }[]>(headers && headers.length > 0 ? headers : [{ key: "", value: "", checked: true }]);
-    const [body, setBody] = useState<string>("");
+    const [body, setBody] = useState<string>(initialBody || "");
     const [jsonError, setJsonError] = useState<string | null>(null);
+    const isHtml = contentType?.includes("text/html");
 
     // Derive header object for request submission
     const header = useMemo(() => {
@@ -62,6 +64,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
         const value = e.currentTarget.value;
         setBody(value);
         validateJson(value);
+        updateTab(tabId, { body: value });
     };
 
     const handleFormatJson = () => {
@@ -73,6 +76,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
             const formatted = JSON.stringify(parsed, null, 2);
             setBody(formatted);
             setJsonError(null);
+            updateTab(tabId, { body: formatted });
         } catch (err: any) {
             setJsonError(err.message || "Cannot format invalid JSON");
         }
@@ -86,7 +90,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
 
     return (
         <>
-            <Paper bdrs={10} bd={"1px solid #dadada"} py={20} px={10}>
+            <Paper bdrs={10} withBorder py={20} px={10}>
                 <Text my={10} mx={0} fw={"bold"}>URL config</Text>
                 <Group>
                     <Select
@@ -99,9 +103,9 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                     <Button onClick={() => onsubmit({ url, method, body: body ? JSON.parse(body) : undefined, headers: header })} loading={loading}>Send</Button>
                 </Group>
             </Paper>
-            <Paper>
+            <Paper withBorder mt="md">
                 <Group>
-                    <Box w={"49%"} h={400} p={10} my={10} bdrs={10} bd={"1px solid #dadada"}>
+                    <Paper w={"49%"} h={400} p={10} my={10} radius={10} withBorder>
                         <Tabs defaultValue={"Headers"}>
                             <Tabs.List>
                                 <Tabs.Tab value="Headers">
@@ -197,14 +201,54 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                                 </Group>
                             </Tabs.Panel>
                         </Tabs>
-                    </Box>
-                    <Box w={"49%"} h={400} my={10} bdrs={10} bd={"1px solid #dadada"} p={10} style={{ position: 'relative' }}>
-                        <Text>Preview</Text>
-                        <Paper bg={"#f2f2f2"} h={"90%"} w={"100%"} p={10} display={"flex"} className="items-center justify-center" style={{ position: 'relative' }}>
+                    </Paper>
+                    <Paper w={"49%"} h={400} my={10} radius={10} withBorder p={10} style={{ position: 'relative' }}>
+                        <Group justify="space-between" mb={5}>
+                            <Text fw={500}>Preview</Text>
+                            <Group gap={5}>
+                                <Badge variant="light" color="blue" size="sm" radius="sm">
+                                    {method}
+                                </Badge>
+                                {status && (
+                                    <Badge 
+                                        variant="filled" 
+                                        color={status >= 200 && status < 300 ? "green" : status >= 400 ? "red" : "yellow"} 
+                                        size="sm" 
+                                        radius="sm"
+                                    >
+                                        {status} {statusText}
+                                    </Badge>
+                                )}
+                            </Group>
+                        </Group>
+                        <Paper bg="var(--mantine-color-gray-light)" h={"90%"} w={"100%"} p={0} display={"flex"} className="items-center justify-center" style={{ position: 'relative', overflow: 'hidden' }}>
                             {response ? (
-                                <pre style={{ width: '100%', height: '100%', overflow: 'auto', fontSize: 12 }}>
-                                    {JSON.stringify(response, null, 2)}
-                                </pre>
+                                isHtml ? (
+                                    <Tabs defaultValue="preview" w="100%" h="100%" styles={{ panel: { height: 'calc(100% - 40px)' } }}>
+                                        <Tabs.List>
+                                            <Tabs.Tab value="preview">Visual</Tabs.Tab>
+                                            <Tabs.Tab value="raw">Raw</Tabs.Tab>
+                                        </Tabs.List>
+
+                                        <Tabs.Panel value="preview">
+                                            <iframe
+                                                srcDoc={typeof response === 'string' ? response : JSON.stringify(response)}
+                                                style={{ width: '100%', height: '100%', border: 'none', background: 'white' }}
+                                                title="HTML Preview"
+                                            />
+                                        </Tabs.Panel>
+
+                                        <Tabs.Panel value="raw">
+                                            <pre style={{ width: '100%', height: '100%', overflow: 'auto', fontSize: 12, padding: 10 }}>
+                                                {typeof response === 'string' ? response : JSON.stringify(response, null, 2)}
+                                            </pre>
+                                        </Tabs.Panel>
+                                    </Tabs>
+                                ) : (
+                                    <pre style={{ width: '100%', height: '100%', overflow: 'auto', fontSize: 12, padding: 10 }}>
+                                        {typeof response === 'string' ? response : JSON.stringify(response, null, 2)}
+                                    </pre>
+                                )
                             ) : (
                                 <Text>Text not found</Text>
                             )}
@@ -213,7 +257,8 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                                     style={{
                                         position: 'absolute',
                                         inset: 0,
-                                        background: 'rgba(255,255,255,0.85)',
+                                        background: 'var(--mantine-color-body)',
+                                        opacity: 0.9,
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
@@ -230,7 +275,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                                 </div>
                             )}
                         </Paper>
-                    </Box>
+                    </Paper>
 
                 </Group>
             </Paper>

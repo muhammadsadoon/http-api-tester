@@ -1,8 +1,6 @@
+export type DefualtMethods = ("GET" | "POST" | "PUT" | "DELETE" | "PATCH")
 
-
-type DefualtMethods = ("GET" | "POST" | "PUT" | "DELETE" | "PATCH")
-
-interface handleSendReqType {
+export interface handleSendReqType {
     method: DefualtMethods;
     url:string;
     body?: any;
@@ -11,7 +9,7 @@ interface handleSendReqType {
     };
 }
 
-interface TabData {
+export interface TabData {
     id: string;
     label: string;
     method: DefualtMethods;
@@ -19,11 +17,14 @@ interface TabData {
     body: string;
     headers: { key: string; value: string; checked: boolean }[];
     response: any;
+    status?: number;
+    statusText?: string;
+    contentType?: string;
     jsonError: string | null;
     loading: boolean;
 }
 
-interface TabContextType {
+export interface TabContextType {
     tabs: TabData[];
     activeTab: string;
     addTab: (method: DefualtMethods) => void;
@@ -32,14 +33,14 @@ interface TabContextType {
     updateTab: (id: string, data: Partial<Omit<TabData, 'id'>>) => void;
 }
 
-interface AppShellContextType {
+export interface AppShellContextType {
     url: string;
     method: DefualtMethods;
     updateURLString : (url: string) => String;
     updateMethod : (method: DefualtMethods) => DefualtMethods;
 }
 
-interface TabScreenProps {
+export interface TabScreenProps {
     tabId: string;
     url: string;
     method: DefualtMethods;
@@ -47,7 +48,11 @@ interface TabScreenProps {
     onsubmit: (e: handleSendReqType) => void;
     loading?: boolean;
     headers?: { key: string; value: string; checked: boolean }[];
+    body: string;
     response: any;
+    status?: number;
+    statusText?: string;
+    contentType?: string;
     setMethod: (method: DefualtMethods) => void;
     onCancel: () => void;
 }
