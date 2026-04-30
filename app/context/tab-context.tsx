@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { TabContextType, TabData, DefualtMethods } from "../types/type";
 
 const TabContext = createContext<TabContextType | undefined>(undefined);
 
