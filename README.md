@@ -1,3 +1,3 @@
 ### API testing 
 
-auther: muhammad sadoon sohail
+auther name: muhammad sadoon sohail
