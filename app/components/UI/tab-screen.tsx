@@ -2,6 +2,7 @@
 
 import { Group, Input, Paper, Button, Select, Text, Box, Tabs, Textarea, ActionIcon, Checkbox, Badge } from "@mantine/core";
 import { useState, type ChangeEvent, useMemo } from "react";
+import { useMediaQuery } from "@mantine/hooks";
 import { useTabContext } from "../../context/tab-context";
 import { TabScreenProps, DefualtMethods, handleSendReqType } from "../../types/type";
 
@@ -11,6 +12,8 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
     const [body, setBody] = useState<string>(initialBody || "");
     const [jsonError, setJsonError] = useState<string | null>(null);
     const isHtml = contentType?.includes("text/html");
+
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     // Derive header object for request submission
     const header = useMemo(() => {
@@ -92,20 +95,32 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
         <>
             <Paper bdrs={10} withBorder py={20} px={10}>
                 <Text my={10} mx={0} fw={"bold"}>URL config</Text>
-                <Group>
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1rem', width: '100%' }}>
                     <Select
                         placeholder="Pick value"
                         value={method}
                         onChange={handleMethodChange}
                         data={["GET", "POST", "DELETE", "PATCH", "PUT"]}
+                        style={{ flex: isMobile ? '1' : '0 0 120px' }}
                     />
-                    <Input value={url} w={"65%"} onChange={(e: ChangeEvent<HTMLInputElement>) => updateURLString(e.target.value)} placeholder="type URL here..." />
-                    <Button onClick={() => onsubmit({ url, method, body: body ? JSON.parse(body) : undefined, headers: header })} loading={loading}>Send</Button>
-                </Group>
+                    <Input 
+                        value={url} 
+                        style={{ flex: '1' }} 
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => updateURLString(e.target.value)} 
+                        placeholder="type URL here..." 
+                    />
+                    <Button 
+                        onClick={() => onsubmit({ url, method, body: body ? JSON.parse(body) : undefined, headers: header })} 
+                        loading={loading}
+                        style={{ flex: isMobile ? '1' : '0 0 100px' }}
+                    >
+                        Send
+                    </Button>
+                </div>
             </Paper>
-            <Paper withBorder mt="md">
-                <Group>
-                    <Paper w={"49%"} h={400} p={10} my={10} radius={10} withBorder>
+            <Paper withBorder mt="md" p={10}>
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1rem' }}>
+                    <Paper w={isMobile ? "100%" : "50%"} h={400} p={10} radius={10} withBorder>
                         <Tabs defaultValue={"Headers"}>
                             <Tabs.List>
                                 <Tabs.Tab value="Headers">
@@ -120,24 +135,25 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                                 <Text fz={"12px"} fw={"bold"} my={10}>
                                     Set Header:
                                 </Text>
+                                <div style={{ overflowY: 'auto', maxHeight: '280px' }}>
                                 {
                                     headerMap.map((e, i) => {
                                         return (
-                                            <Group key={i} my={5}>
+                                            <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
                                                 <Checkbox
                                                     checked={e.checked}
                                                     onChange={(event) => updateHeaderMap(i, "checked", event.currentTarget.checked)}
                                                     title="Include in headers"
                                                 />
                                                 <Input
-                                                    w={"35%"}
+                                                    style={{ flex: 1 }}
                                                     placeholder="Key"
                                                     value={e.key}
                                                     onChange={(event) => updateHeaderMap(i, "key", event.currentTarget.value)}
                                                 />
-                                                {":"}
+                                                <Text>:</Text>
                                                 <Input
-                                                    w={"35%"}
+                                                    style={{ flex: 1 }}
                                                     placeholder="Value"
                                                     value={e.value}
                                                     onChange={(event) => updateHeaderMap(i, "value", event.currentTarget.value)}
@@ -152,10 +168,11 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                                                         ×
                                                     </ActionIcon>
                                                 )}
-                                            </Group>
+                                            </div>
                                         )
                                     })
                                 }
+                                </div>
                                 <Group my={10}>
                                     <ActionIcon
                                         variant="filled"
@@ -202,7 +219,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                             </Tabs.Panel>
                         </Tabs>
                     </Paper>
-                    <Paper w={"49%"} h={400} my={10} radius={10} withBorder p={10} style={{ position: 'relative' }}>
+                    <Paper w={isMobile ? "100%" : "50%"} h={400} radius={10} withBorder p={10} style={{ position: 'relative' }}>
                         <Group justify="space-between" mb={5}>
                             <Text fw={500}>Preview</Text>
                             <Group gap={5}>
@@ -277,7 +294,7 @@ export default function TabScreen({ tabId, method, url, updateURLString, onsubmi
                         </Paper>
                     </Paper>
 
-                </Group>
+                </div>
             </Paper>
         </>
     )

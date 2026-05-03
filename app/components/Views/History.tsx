@@ -19,26 +19,28 @@ export default function HistoryView() {
       </Group>
 
       <Paper withBorder radius="md">
-        <Table verticalSpacing="sm">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Method</Table.Th>
-              <Table.Th>URL</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Time</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            <Table.Tr>
-              <Table.Td colSpan={4}>
-                 <Stack align="center" py="xl" gap="xs">
-                    <Clock size={32} color="var(--mantine-color-gray-4)" />
-                    <Text fw={500} c="dimmed">No history available</Text>
-                 </Stack>
-              </Table.Td>
-            </Table.Tr>
-          </Table.Tbody>
-        </Table>
+        <Table.ScrollContainer minWidth={500}>
+          <Table verticalSpacing="sm">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Method</Table.Th>
+                <Table.Th>URL</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th>Time</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              <Table.Tr>
+                <Table.Td colSpan={4}>
+                   <Stack align="center" py="xl" gap="xs">
+                      <Clock size={32} color="var(--mantine-color-gray-4)" />
+                      <Text fw={500} c="dimmed">No history available</Text>
+                   </Stack>
+                </Table.Td>
+              </Table.Tr>
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Paper>
     </Stack>
   );

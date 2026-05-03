@@ -23,22 +23,24 @@ export default function EnvironmentView() {
             <Badge color="teal">Active</Badge>
           </Group>
           
-          <Table withTableBorder withColumnBorders>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Variable Name</Table.Th>
-                <Table.Th>Initial Value</Table.Th>
-                <Table.Th>Current Value</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              <Table.Tr>
-                <Table.Td><code>base_url</code></Table.Td>
-                <Table.Td>https://api.example.com</Table.Td>
-                <Table.Td>https://api.example.com</Table.Td>
-              </Table.Tr>
-            </Table.Tbody>
-          </Table>
+          <Table.ScrollContainer minWidth={500}>
+            <Table withTableBorder withColumnBorders>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Variable Name</Table.Th>
+                  <Table.Th>Initial Value</Table.Th>
+                  <Table.Th>Current Value</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                <Table.Tr>
+                  <Table.Td><code>base_url</code></Table.Td>
+                  <Table.Td>https://api.example.com</Table.Td>
+                  <Table.Td>https://api.example.com</Table.Td>
+                </Table.Tr>
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
         </Stack>
       </Paper>
     </Stack>
