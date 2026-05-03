@@ -5,6 +5,7 @@ import '@mantine/core/styles.css';
 import { MantineProvider } from "@mantine/core";
 import { theme } from "./them";
 import { TabProvider } from "./context/tab-context";
+import { EnvProvider } from "./context/env-context";
 import Script from 'next/script';
 
 const geistSans = Geist({
@@ -38,9 +39,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col" cz-shortcut-listen="true">
         <MantineProvider theme={theme} defaultColorScheme="light">
-          <TabProvider>
-            {children}
-          </TabProvider>
+          <EnvProvider>
+            <TabProvider>
+              {children}
+            </TabProvider>
+          </EnvProvider>
         </MantineProvider>
       </body>
     </html>

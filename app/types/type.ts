@@ -40,6 +40,20 @@ export interface AppShellContextType {
     updateMethod : (method: DefualtMethods) => DefualtMethods;
 }
 
+export interface EnvVariable {
+    id: string;
+    key: string;
+    value: string;
+    isActive: boolean;
+}
+
+export interface EnvContextType {
+    variables: EnvVariable[];
+    addVariable: () => void;
+    updateVariable: (id: string, field: "key" | "value" | "isActive", value: string | boolean) => void;
+    removeVariable: (id: string) => void;
+}
+
 export interface TabScreenProps {
     tabId: string;
     url: string;

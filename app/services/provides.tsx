@@ -18,6 +18,7 @@ import {
 import TabScreen from '../components/UI/tab-screen';
 import axios from "axios";
 import { useTabContext } from '../context/tab-context';
+import { useEnvContext } from '../context/env-context';
 import { DefualtMethods, handleSendReqType } from '../types/type';
 import CollectionsView from '../components/Views/Collections';
 import HistoryView from '../components/Views/History';
@@ -51,6 +52,8 @@ export default function AppShellProvider() {
     addTab(method);
   }, [addTab]);
 
+  const { variables } = useEnvContext();
+
   const handleSendURL = useCallback(async ({ headers, method, url, body }: handleSendReqType) => {
     // Cancel any existing request
     if (abortControllerRef.current) {
@@ -60,13 +63,43 @@ export default function AppShellProvider() {
     abortControllerRef.current = controller;
 
     updateTab(activeTab, { loading: true, response: null });
+
+    const replaceEnv = (str: string) => {
+      if (!str) return str;
+      let replaced = str;
+      variables.filter(v => v.isActive && v.key).forEach(v => {
+        // Escape special characters in the key just in case, and escape the curly braces
+        const escapedKey = v.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\{\\{${escapedKey}\\}\\}`, 'g');
+        replaced = replaced.replace(regex, v.value);
+      });
+      return replaced;
+    };
+
     try {
-      console.log(body)
+      const finalUrl = replaceEnv(url);
+      let finalBody = body;
+      if (body) {
+         try {
+             finalBody = typeof body === 'string' ? JSON.parse(replaceEnv(body)) : JSON.parse(replaceEnv(JSON.stringify(body)));
+         } catch(e) {
+             finalBody = body; // Fallback if invalid JSON
+         }
+      }
+
+      const finalHeaders: any = {};
+      if (headers) {
+        Object.keys(headers).forEach(k => {
+          finalHeaders[replaceEnv(k)] = typeof headers[k] === 'string' ? replaceEnv(headers[k] as string) : headers[k];
+        });
+      }
+
+      console.log(finalBody);
       const res = await axios({
-        headers,
+        headers: finalHeaders,
         method,
-        url,
-        data: body,
+        url: finalUrl,
+        data: finalBody,
         signal: controller.signal
       });
       updateTab(activeTab, { 
@@ -91,7 +124,7 @@ export default function AppShellProvider() {
     } finally {
       abortControllerRef.current = null;
     }
-  }, [activeTab, updateTab]);
+  }, [activeTab, updateTab, variables]);
 
   const handleCancelRequest = useCallback(() => {
     if (abortControllerRef.current) {
