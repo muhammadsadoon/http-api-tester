@@ -4,7 +4,6 @@ import "./globals.css";
 import '@mantine/core/styles.css';
 import { MantineProvider } from "@mantine/core";
 import { theme } from "./them";
-import AppShellProvider from "./services/provides";
 import { TabProvider } from "./context/tab-context";
 import Script from 'next/script';
 
@@ -40,7 +39,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col" cz-shortcut-listen="true">
         <MantineProvider theme={theme} defaultColorScheme="light">
           <TabProvider>
-            <AppShellProvider />
+            {children}
           </TabProvider>
         </MantineProvider>
       </body>

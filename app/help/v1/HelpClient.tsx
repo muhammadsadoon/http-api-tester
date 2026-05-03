@@ -1,12 +1,12 @@
 "use client";
 
-import HelpView from "../components/Views/Help";
-import { Container, Button, Group, Text, Anchor } from "@mantine/core";
+import HelpView from "../../components/Views/Help";
+import { Button, Group, Text, Anchor } from "@mantine/core";
 import { ArrowLeft } from "lucide-react";
 
 export default function HelpClient() {
   return (
-    <Container size="lg" py="xl">
+    <div style={{ padding: '2rem' }}>
       <Group justify="space-between" mb="xl">
         <Anchor href="/" style={{ textDecoration: 'none' }}>
             <Button variant="subtle" leftSection={<ArrowLeft size={16} />} radius="md">
@@ -27,6 +27,6 @@ export default function HelpClient() {
             </Group>
         </Group>
       </footer>
-    </Container>
+    </div>
   );
 }

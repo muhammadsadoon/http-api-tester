@@ -314,7 +314,7 @@ export default function AppShellProvider() {
                 label="Help & Docs"
                 leftSection={<BookOpen size={18} />}
                 component="a"
-                href="/help"
+                href="/help/v1"
                 target="_blank"
               />
               <NavLink
