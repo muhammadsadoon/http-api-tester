@@ -6,8 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:electron": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:electron": "tsc --project electron/tsconfig.json",
+    "dist": "npm run build && npm run build:electron && electron-builder",
+    "export": "next export"
   },
+  "main": "dist-electron/main.js",
   "dependencies": {
     "@mantine/carousel": "^9.1.0",
     "@mantine/core": "^9.1.0",
@@ -26,16 +31,22 @@
     "react-json-editor-ajrm": "^2.5.14"
   },
   "devDependencies": {
+    "electron": "^41.5.0",
     "@tailwindcss/postcss": "^4",
+    "@types/electron": "^1.4.38",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
+    "electron-builder": "^26.8.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "postcss": "^8.5.10",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.5"
   }
 }

@@ -15,12 +15,12 @@ export default function AboutView() {
         <Text c="dimmed">Advanced HTTP Client for Modern Developers</Text>
       </Stack>
 
-      <Paper withBorder p="xl" radius="md" maw={600} w="100%">
+      <Paper withBorder p="xl" maw={600} w="100%">
         <Stack gap="md">
           <Text size="sm">
-            Our **API Platform** is the fastest, most reliable, and beautifully designed 
-            online HTTP client for developers. Built to optimize your API development 
-            workflow, it provides professional tools to test REST APIs, manage complex 
+            Our **API Platform** is the fastest, most reliable, and beautifully designed
+            online HTTP client for developers. Built to optimize your API development
+            workflow, it provides professional tools to test REST APIs, manage complex
             headers, and debug payloads with real-time visual feedback.
           </Text>
 

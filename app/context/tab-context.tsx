@@ -27,7 +27,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
       id: newId,
       label: method,
       method,
-      url: "",
+      url:"" ,
       body: "",
       headers: [{ key: "", value: "", checked: true }],
       response: null,
