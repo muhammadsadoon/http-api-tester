@@ -9,7 +9,7 @@ export default function HelpClient() {
     <div style={{ padding: '2rem' }}>
       <Group justify="space-between" mb="xl">
         <Anchor href="/" style={{ textDecoration: 'none' }}>
-            <Button variant="subtle" leftSection={<ArrowLeft size={16} />} radius="md">
+            <Button variant="subtle" leftSection={<ArrowLeft size={16} />} >
                 Back to API Tester
             </Button>
         </Anchor>
@@ -27,6 +27,6 @@ export default function HelpClient() {
             </Group>
         </Group>
       </footer>
-    </div>
+    </div >
   );
 }
